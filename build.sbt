@@ -6,5 +6,7 @@ lazy val `cats-toy` = (project in file("."))
   ) 
 
 libraryDependencies += "org.typelevel" %% "cats-core" % "2.1.0"
+libraryDependencies += "org.typelevel" %% "cats-laws" % "2.1.0"
 libraryDependencies += "org.specs2" %% "specs2-core" % "4.8.3" % Test
 libraryDependencies += "org.specs2" %% "specs2-mock" % "4.8.3" % Test
+libraryDependencies += "org.typelevel" %% "discipline-specs2" % "1.0.0"
