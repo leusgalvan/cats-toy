@@ -6,6 +6,7 @@ import cats._
 
 object IO {
   import Model._
+  import Model.Instances._
 
   def saveUserToFile[F[_]](user: User, filename: String)(implicit ap: ApplicativeError[F, IOException]): F[Unit] = {
     val outputStream = new BufferedOutputStream(new FileOutputStream(filename, true))

@@ -4,7 +4,8 @@ import cats.Eq
 import cats.laws._
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
-import cats.laws.discipline._
+import cats.laws.discipline.catsLawsIsEqToProp
+import cats.instances.option._
 
 trait Persistable[A] extends Serializable[A] with Deserializable[A]
 
@@ -18,7 +19,7 @@ object Persistable {
   trait PersistableLaws[A] {
     implicit def P: Persistable[A]
 
-    def isomorphism(a: A): IsEq[Option[A]] = (P.serialize andThen P.deserialize)(a) <-> Some(a)
+    def isomorphism(a: A): IsEq[Option[A]] = (P.serialize _ andThen P.deserialize _)(a) <-> Some(a)
   }
 
   object PersistableLaws {
