@@ -6,20 +6,20 @@ object Model {
   case class User(username: String, password: String, email: String)
 
   val userMarker = 3.toByte
-  implicit val userSerialInstance = Serial.instance[User] { user =>
-    val bytes = Serial[List[String]].serialize(List(user.username, user.email, user.password))
-    Array(userMarker, bytes.length.toByte) ++
-      Serial[String].serialize(user.username) ++
-      Serial[String].serialize(user.password) ++
-      Serial[String].serialize(user.email)
+  implicit val userPersistableInstance = Persistable.instance[User] { user =>
+    val usernameBytes = Serializable[String].serialize(user.username)
+    val passwordBytes = Serializable[String].serialize(user.password)
+    val emailBytes = Serializable[String].serialize(user.email)
+    val totalLength = usernameBytes.length + passwordBytes.length + emailBytes.length
+    Array(userMarker, totalLength.toByte) ++ usernameBytes ++ passwordBytes ++ emailBytes
   }
   {
     case bs if bs.length <= 1 || bs.head != userMarker => None
     case bs =>
       for {
-        username <- Serial[String].deserialize(bs.drop(2))
-        password <- Serial[String].deserialize(bs.drop(4 + username.length))
-        email    <- Serial[String].deserialize(bs.drop(6 + username.length + password.length))
+        username <- Deserializable[String].deserialize(bs.drop(2))
+        password <- Deserializable[String].deserialize(bs.drop(4 + username.length))
+        email    <- Deserializable[String].deserialize(bs.drop(6 + username.length + password.length))
       } yield User(username, password, email)
   }
 
