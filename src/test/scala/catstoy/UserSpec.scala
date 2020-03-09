@@ -1,8 +1,10 @@
+package catstoy
+
+import catstoy.Model.Instances._
 import catstoy.Model.User
 import catstoy.Persistable.PersistableTests
 import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.mutable.Specification
-import catstoy.Model.Instances._
 import org.typelevel.discipline.specs2.mutable.Discipline
 
 class UserSpec extends Specification with Discipline {

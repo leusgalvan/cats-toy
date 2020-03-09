@@ -6,37 +6,38 @@ import java.nio.file.{Files, Paths, StandardOpenOption}
 import cats._
 import catstoy.Model.Instances._
 import catstoy.Model._
-import catstoy.Deserializable.Instances._
+import catstoy.Persistable.Instances._
 
 object IO {
   def saveUserToFile[F[_]](user: User, filename: String)(
-    implicit ap: ApplicativeError[F, IOException]
+    implicit ap: ApplicativeError[F, Throwable]
   ): F[Unit] = {
     try {
       ap.pure(
         Files.write(
           Paths.get(filename),
-          Serializable[User].serialize(user),
+          Persistable[User].serialize(user),
+          StandardOpenOption.CREATE,
           StandardOpenOption.APPEND
         )
       )
     } catch {
-      case e: IOException => ap.raiseError(e)
+      case e: Throwable => ap.raiseError(e)
     }
   }
 
   def readUsersFromFile[F[_]](
     filename: String
-  )(implicit ap: ApplicativeError[F, IOException]): F[List[User]] = {
+  )(implicit ap: ApplicativeError[F, Throwable]): F[List[User]] = {
     try {
       val path = Paths.get(filename)
-      val readUsers = Files.readAllBytes _ andThen Deserializable[List[User]].deserialize _
+      val readUsers = Files.readAllBytes _ andThen Persistable[List[User]].deserialize _
       readUsers(path) match {
         case Some(users) => ap.pure(users)
         case None        => ap.raiseError(new IOException("Serialization error"))
       }
     } catch {
-      case e: IOException => ap.raiseError(e)
+      case e: Throwable => ap.raiseError(e)
     }
   }
 }

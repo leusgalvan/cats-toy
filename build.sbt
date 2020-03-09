@@ -1,9 +1,7 @@
 scalaVersion := "2.13.1"
 
 lazy val `cats-toy` = (project in file("."))
-  .settings(
-    name := "Cats toy"
-  ) 
+  .settings(name := "Cats toy")
 
 libraryDependencies += "org.typelevel" %% "cats-core" % "2.1.0"
 libraryDependencies += "org.typelevel" %% "cats-laws" % "2.1.0"
