@@ -34,7 +34,7 @@ object Form {
     password: String
   ): ValidatedNec[UserDataException, String] = {
     Validated.condNec(
-      !password.exists(_.isUpper),
+      password.exists(_.isUpper),
       password,
       PasswordDoesNotContainUppercaseException
     )
@@ -64,9 +64,7 @@ object Form {
                  email: String): ValidatedNec[UserDataException, User] = {
     (
       checkUsernameLength(username),
-      checkPasswordContainsUppercase(password).combine(
-        checkPasswordContainsUppercase(password)
-      ),
+      checkPasswordContainsUppercase(password),
       checkEmailFormat(email)
     ).mapN {
       case (username, password, email) =>

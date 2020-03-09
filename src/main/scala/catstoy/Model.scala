@@ -32,11 +32,11 @@ object Model {
     implicit val userEqInstance = Eq.instance[User](_.username == _.username)
     implicit val userSafeShowInstance = Show.show[User](
       user =>
-        s"User(username=${user.username} password=******** email=${user.email}"
+        s"User(username=${user.username} password=******** email=${user.email})"
     )
     implicit val userUnsafeShowInstance = Show.show[User](
       user =>
-        s"User(username=${user.username} password=${user.password} email=${user.email}"
+        s"User(username=${user.username} password=${user.password} email=${user.email})"
     )
   }
 
