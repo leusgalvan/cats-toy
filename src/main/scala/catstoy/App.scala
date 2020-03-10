@@ -4,10 +4,9 @@ import java.util.NoSuchElementException
 
 import cats.implicits._
 import cats.Show
-import catstoy.Form.UserDataException
 import catstoy.Model.User
 
-import scala.util.{Failure, Try}
+import scala.util.Try
 import scala.util.control.NonFatal
 
 object App {
@@ -17,6 +16,11 @@ object App {
   val EXIT_OPCODE = 4
   val ALL_OPCODES =
     Set(CREATE_USER_OPCODE, LIST_USERS_OPCODE, DELETE_USERS_OPCODE, EXIT_OPCODE)
+
+  val io = IO[Try](isFlaky = true)
+
+  private def withRetries[A](op: Try[A]) =
+    Scheduler.retry[Try, Throwable, A](() => op, 5, Some("\n\nRetrying..."))
 
   private def readOperation(): Try[Int] = {
     print("""
@@ -49,7 +53,7 @@ object App {
         .createUser(username, password, email)
         .leftMap(exceptions => new Exception(exceptions.show))
         .liftTo[Try]
-      _ <- IO.saveUserToFile[Try](newUser, "users.txt")
+      _ <- withRetries(io.saveUserToFile(newUser, "users.txt"))
 
     } yield {
       println(s"\n\nUser successfully created: ${newUser.show}\n")
@@ -62,7 +66,7 @@ object App {
       Instances.listStringMultilineShow
 
     for {
-      users <- IO.readUsersFromFile[Try]("users.txt")
+      users <- withRetries(io.readUsersFromFile("users.txt"))
     } yield {
       println(s"\n\nUsers currently in database:\n ${users.show}\n")
     }
@@ -70,7 +74,7 @@ object App {
 
   private def deleteAllUsers(): Try[Unit] = {
     for {
-      _ <- IO.deleteAllUsers[Try]("users.txt")
+      _ <- withRetries(io.deleteAllUsers("users.txt"))
     } yield {
       println(s"\n\nUsers deleted succesfully")
     }
@@ -99,7 +103,7 @@ object App {
       case PleaseExitException =>
         Try(println("\n\nBye :)"))
       case _: NoSuchElementException =>
-        println("Unrecognized operation code")
+        println("\n\nUnrecognized operation code")
         run()
       case NonFatal(e) =>
         println(s"\n\nAn error ocurred: ${e.getMessage}")
