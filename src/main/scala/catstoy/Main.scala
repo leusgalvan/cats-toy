@@ -1,12 +1,11 @@
 package catstoy
 
+import cats.implicits._
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
 object Main {
   def main(args: Array[String]): Unit = {
-    App
-      .run()
-      .fold(
-        ex => println(s"Application ended with error: $ex"),
-        _ => println("Application ended successfully")
-      )
+    App[Future].run()
   }
 }
